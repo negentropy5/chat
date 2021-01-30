@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>chat</title>
+  <style>
+    body {
+      margin: 0; padding: 0 5px; min-height: 100vh;
+      background: linear-gradient(#fff, #fff8dc);
+    }
+    input {
+      display: inline-block;
+      height : 20px;
+      margin : 3px 0 3px;
+    }
+    #input_n {width: 77px; }
+    #input_l {
+      width: clamp(200px, 77vw, 400px);
+    }
+    select   {
+      height        : 21.5px;
+      vertical-align: middle;
+    }
+    a {
+      color          : aqua;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="form">
+    <input  id="input_n" type="text" placeholder="-名前-">
+    <select name="color" id="color"></select><br>
+    <input  id="input_l" type="text" placeholder="-発言-">
+    <button id="btn">送信</button>
+  </form>
+
+  <div id="span"></div>
+
+<script>
+
+  let colors = [
+    ["black","黒"],
+    ["gray","灰"],
+    ["blue","青"],
+    ["#4285f4","薄青"],
+    ["cyan","cyan"],
+    ["navy","紺"],
+    ["purple","紫"],
+    ["green","緑"],
+    ["teal","teal"],
+    ["lime","lime"],
+    ["red","赤"],
+    ["pink","桃"],
+    ["deeppink","深桃"],
+    ["orange","橙"]
+  ];
+  
+  colors.forEach(c=>{
+    const option = document.createElement('option');
+    option.value = c[0];
+    option.innerHTML = c[1];
+    option.style.color = c[0];
+    color.appendChild(option);
+  });
+
+  let clearTime;
+  let chat_name = '';
+  let chat_log  = '';
+  let fromForm  = 0 
+
+  form.addEventListener('submit', e =>{
+      e.preventDefault();
+
+      chat_name = input_n.value;
+      chat_log  = input_l.value;
+      if(/,/.test(input_n.value)) chat_name = input_n.value.replaceAll(',','.');
+      if(/,/.test(input_l.value)) chat_log  = input_l.value.replaceAll(',','.');
+      
+      clearTimeout(clearTime);
+
+      subm();
+
+      input_l.value = '';
+  });
+
+  function subm() {
+
+      const xhr_index = new XMLHttpRequest();
+      xhr_index.open('POST', 'text.php');
+      // xhr_index.open('POST', 'http://negentropy.php.xdomain.jp/chat5/text.php');
+      xhr_index.setRequestHeader('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+      xhr_index.send(`res=${chat_name},${chat_log},${color.value}`);
+      
+      chat_log = '';
+
+      xhr_index.addEventListener("load",function(ev){
+        span.innerHTML = this.response;
+      });
+      
+      clearTime = setTimeout(subm, 3000);
+  }
+
+  subm();
+
+</script>
+</body>
+</html>
